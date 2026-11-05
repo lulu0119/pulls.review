@@ -43,9 +43,9 @@ are not implemented; use the original MR page for those actions.
 MR commits are loaded oldest first and included in the AI context. The commit
 picker opens each commit against its first parent; **All changes** returns to
 the whole MR. Older cached MRs automatically refresh their commit metadata while
-preserving their AI results. Group explanations appear in the left sidebar;
-new AI analyses require an explanation for every group and subgroup. Re-run AI
-analysis to regenerate older results that omitted explanations or commit context.
+preserving their AI results. Group explanations appear in the left sidebar when
+provided by the model; explanations remain optional, as in upstream. Re-run AI
+analysis to include commit context in an older result.
 
 The Pages workflow builds on pushes to `main` and uses hash routes so deep links
 and refresh work without a server rewrite. Other deployment targets retain
