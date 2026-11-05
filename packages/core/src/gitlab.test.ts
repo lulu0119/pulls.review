@@ -1,6 +1,7 @@
 import type { Credentials } from './types/source'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createGitlabClient, createGitlabMergeRequestSource, normalizeGitlabInstance, parseGitlabUrl } from './gitlab'
+import { buildAnalysisPrompt } from './analyze/adapters/llm/prompt'
+import { createGitlabClient, createGitlabCommitSource, createGitlabMergeRequestSource, normalizeGitlabInstance, parseGitlabUrl } from './gitlab'
 import { serializeRef } from './types/source'
 
 const ref = { kind: 'gitlab-mr', instance: 'https://git.internal:8443/gitlab', project: 'team/sub/repo', number: '42' } as const
@@ -38,8 +39,18 @@ describe('gitLab URLs and identity', () => {
 })
 
 describe('gitLab source', () => {
+  it('loads every MR commit oldest first and gives commit messages to AI analysis', async () => {
+    const commits = [
+      { id: 'bbb2222', message: 'Fix retry\n\nKeep the original cause.', author_name: 'B', created_at: '2026-11-02' },
+      { id: 'aaa1111', message: 'Add client', author_name: 'A', created_at: '2026-11-01' },
+    ]
+    const transport = async (url: string) => json(url.includes('/commits?') ? commits : url.includes('/diffs?') ? [file] : mr)
+    const diff = await createGitlabMergeRequestSource(ref, undefined, transport).fetch()
+    expect(diff.commits?.map(commit => commit.sha)).toEqual(['aaa1111', 'bbb2222'])
+    expect(buildAnalysisPrompt(diff, 'en')).toContain('aaa1111 Add client\nbbb2222 Fix retry')
+  })
   it('normalizes MR metadata, merge base, renamed patches and per-instance authentication', async () => {
-    const transport = vi.fn(async (url: string, _init?: RequestInit) => json(url.includes('/diffs?') ? [file] : mr))
+    const transport = vi.fn(async (url: string, _init?: RequestInit) => json(url.includes('/commits?') ? [] : url.includes('/diffs?') ? [file] : mr))
     const credentials: Credentials = { githubToken: async () => 'github-secret', gitlabToken: vi.fn(async () => 'gitlab-secret') }
     const source = createGitlabMergeRequestSource(ref, credentials, transport)
     const diff = await source.fetch()
@@ -60,6 +71,8 @@ describe('gitLab source', () => {
   })
   it('loads omitted patches from the merge base and fork source project', async () => {
     const transport = vi.fn(async (url: string) => {
+      if (url.includes('/commits?'))
+        return json([])
       if (url.includes('/diffs?'))
         return json([{ ...file, diff: '', too_large: true }])
       if (url.includes('/raw?ref=base'))
@@ -74,13 +87,15 @@ describe('gitLab source', () => {
     expect(transport.mock.calls.map(call => call[0])).toContain(`${ref.instance}/api/v4/projects/2/repository/files/new.ts/raw?ref=head`)
   })
   it('does not render binary files as text', async () => {
-    const transport = async (url: string) => url.includes('/raw?') ? new Response('\0binary') : json(url.includes('/diffs?') ? [{ ...file, diff: '' }] : mr)
+    const transport = async (url: string) => url.includes('/raw?') ? new Response('\0binary') : json(url.includes('/commits?') ? [] : url.includes('/diffs?') ? [{ ...file, diff: '' }] : mr)
     const diff = await createGitlabMergeRequestSource(ref, undefined, transport).fetch()
     expect(diff.files[0]).toMatchObject({ isBinary: true, hunks: [] })
   })
   it('supports older GitLab but refuses an incomplete file list', async () => {
     let overflow = false
     const transport = async (url: string) => {
+      if (url.includes('/commits?'))
+        return json([])
       if (url.includes('/diffs?'))
         return json({}, 404)
       if (url.includes('/changes?'))
@@ -104,5 +119,27 @@ describe('gitLab source', () => {
     token = 'second'
     await client.request('/projects')
     expect(transport.mock.calls[1]![1]?.headers).toEqual({ 'PRIVATE-TOKEN': 'second' })
+  })
+})
+
+describe('gitLab commit diffs', () => {
+  it.each([['parent', 'second-parent'], []])('reads a commit against its first parent, including root commits (%j)', async (...parentIds: string[]) => {
+    const commit = { id: 'abc1234', message: 'Fix parser\n\nPreserve errors.', author_name: 'Alice', created_at: '2026-11-01', parent_ids: parentIds, web_url: 'https://git.internal/commit/abc1234' }
+    const transport = vi.fn(async (url: string) => {
+      if (url.includes('/repository/commits/abc1234/diff?'))
+        return json([{ ...file, diff: '', new_file: !parentIds.length, renamed_file: false }])
+      if (url.includes('/repository/commits/abc1234'))
+        return json(commit)
+      if (url.includes('/raw?'))
+        return new Response(url.endsWith('ref=abc1234') ? 'new\n' : 'old\n')
+      return json(mr)
+    })
+    const diff = await createGitlabCommitSource({ ...ref, sha: commit.id }, undefined, transport).fetch()
+    expect(diff.title).toBe('Fix parser')
+    expect(diff.base?.sha).toBe(parentIds[0])
+    expect(diff.head?.sha).toBe(commit.id)
+    expect(diff.description).toBe('Preserve errors.')
+    expect(diff.files[0]).toMatchObject({ additions: 1, deletions: parentIds.length ? 1 : 0 })
+    expect(transport.mock.calls.map(call => call[0])).toContain(`${ref.instance}/api/v4/projects/2/repository/commits/abc1234`)
   })
 })

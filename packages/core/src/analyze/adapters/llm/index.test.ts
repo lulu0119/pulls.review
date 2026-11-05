@@ -56,7 +56,7 @@ function steeringCount(messages: { role: string, content?: unknown }[]) {
 function oneGroup(...filePaths: string[]): Analysis {
   return {
     overallSummary: 'Adds a feature.',
-    groups: [{ key: 'feature', label: 'Feature', category: 'core', filePaths }],
+    groups: [{ key: 'feature', label: 'Feature', summary: 'Explains the change.', category: 'core', filePaths }],
   }
 }
 
@@ -90,7 +90,7 @@ describe('runLlmAnalysis', () => {
 
     expect(result.source).toBe('llm')
     expect(result.overallSummary).toBe('Adds a feature.')
-    expect(result.groups).toEqual([{ key: 'feature', label: 'Feature', category: 'core', filePaths: ['a.ts', 'b.ts'] }])
+    expect(result.groups).toEqual([{ key: 'feature', label: 'Feature', summary: 'Explains the change.', category: 'core', filePaths: ['a.ts', 'b.ts'] }])
     expect(result.locale).toBe('en')
     expect(transcript[0]).toMatchObject({ role: 'system', content: AGENT_SYSTEM_PROMPT })
     expect(transcript.find(message => message.role !== 'system')).toMatchObject({ role: 'user', content: buildAnalysisPrompt(diff, 'en') })
@@ -209,7 +209,7 @@ describe('reconcile', () => {
   it('keeps nested children', async () => {
     faux.setResponses([submit({
       overallSummary: 'Adds a feature.',
-      groups: [{ key: 'feature', label: 'Feature', category: 'core', filePaths: [], children: [{ key: 'feature/core', label: 'Core', category: 'core', filePaths: ['a.ts'] }] }],
+      groups: [{ key: 'feature', label: 'Feature', summary: 'Explains the change.', category: 'core', filePaths: [], children: [{ key: 'feature/core', label: 'Core', summary: 'Explains the change.', category: 'core', filePaths: ['a.ts'] }] }],
     })])
 
     const result = (await analyze(diffWithFiles(file('a.ts')))).result
@@ -221,8 +221,8 @@ describe('reconcile', () => {
     const analysis: Analysis = {
       overallSummary: 'Summary.',
       groups: [
-        { key: 'code', label: 'Code', category: 'core', filePaths: ['a.ts', 'made-up.ts'] },
-        { key: 'more', label: 'More', category: 'core', filePaths: ['a.ts'] },
+        { key: 'code', label: 'Code', summary: 'Explains the change.', category: 'core', filePaths: ['a.ts', 'made-up.ts'] },
+        { key: 'more', label: 'More', summary: 'Explains the change.', category: 'core', filePaths: ['a.ts'] },
       ],
     }
     faux.setResponses([submit(analysis), submit(analysis)])
@@ -230,7 +230,7 @@ describe('reconcile', () => {
     const result = (await analyze(diffWithFiles(file('a.ts'), file('b.ts')))).result
 
     expect(result.groups).toEqual([
-      { key: 'code', label: 'Code', category: 'core', filePaths: ['a.ts'], children: undefined, fileNotes: undefined, lineNotes: undefined },
+      { key: 'code', label: 'Code', summary: 'Explains the change.', category: 'core', filePaths: ['a.ts'], children: undefined, fileNotes: undefined, lineNotes: undefined },
     ])
   })
 
@@ -238,12 +238,12 @@ describe('reconcile', () => {
     const analysis: Analysis = {
       overallSummary: 'Summary.',
       groups: [
-        { key: 'code', label: 'Code', category: 'core', critical: true, filePaths: ['a.ts', 'made-up.ts'], lineNotes: [
+        { key: 'code', label: 'Code', summary: 'Explains the change.', category: 'core', critical: true, filePaths: ['a.ts', 'made-up.ts'], lineNotes: [
           { path: 'a.ts', side: 'additions', line: 3, text: 'Subtle.', critical: true },
           { path: 'made-up.ts', side: 'additions', line: 1, text: 'Hallucinated.' },
         ], fileNotes: [
           { path: 'b.ts', text: 'Belongs to the child.' },
-        ], children: [{ key: 'child', label: 'Child', category: 'tests', filePaths: ['b.ts'], fileNotes: [{ path: 'b.ts', text: 'Covers the edge case.' }] }] },
+        ], children: [{ key: 'child', label: 'Child', summary: 'Explains the change.', category: 'tests', filePaths: ['b.ts'], fileNotes: [{ path: 'b.ts', text: 'Covers the edge case.' }] }] },
       ],
     }
     faux.setResponses([submit(analysis), submit(analysis)])

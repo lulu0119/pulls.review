@@ -1,4 +1,4 @@
-import type { DiffsPayload, FileChange } from './types/diff'
+import type { Commit, DiffsPayload, FileChange } from './types/diff'
 import type { Credentials, DiffSource, SourceRef } from './types/source'
 import { createTwoFilesPatch } from 'diff'
 import { computeContentHash, countChanges, parseHunks } from './patch-parser'
@@ -101,6 +101,103 @@ interface GitlabDiff {
   too_large?: boolean
 }
 
+interface GitlabCommit {
+  id: string
+  message: string
+  author_name: string
+  created_at: string
+  parent_ids: string[]
+  web_url: string
+}
+
+function normalizeCommit(commit: GitlabCommit): Commit {
+  return { sha: commit.id, message: commit.message, author: { name: commit.author_name }, date: commit.created_at }
+}
+
+async function loadGitlabFile(client: ReturnType<typeof createGitlabClient>, project: number, path: string, sha: string): Promise<string | undefined> {
+  try {
+    return await (await client.request(`/projects/${project}/repository/files/${encodeURIComponent(path)}/raw?ref=${encodeURIComponent(sha)}`)).text()
+  }
+  catch (error) {
+    if (error instanceof GitlabApiError && error.status === 404)
+      return undefined
+    throw error
+  }
+}
+
+type LoadFile = (path: string, sha: string) => Promise<string | undefined>
+
+async function readPatch(file: GitlabDiff, base: string | undefined, head: string, loadFile: LoadFile): Promise<{ patch: string, isBinary: boolean }> {
+  let patch = file.diff
+  let isBinary = /^Binary files .* differ$/m.test(patch)
+  if (!patch || file.collapsed || file.too_large) {
+    const [oldText, newText] = await Promise.all([
+      file.new_file || !base ? undefined : loadFile(file.old_path, base),
+      file.deleted_file ? undefined : loadFile(file.new_path, head),
+    ])
+    isBinary = !!oldText?.includes('\0') || !!newText?.includes('\0')
+    if (!isBinary) {
+      if ((!file.new_file && base && oldText === undefined) || (!file.deleted_file && newText === undefined))
+        throw new Error(`GitLab omitted the patch and file contents for ${file.new_path}. Check project access or retry once the diff is ready.`)
+      patch = createTwoFilesPatch(file.old_path, file.new_path, oldText ?? '', newText ?? '')
+    }
+  }
+  return { patch, isBinary }
+}
+
+async function normalizeFile(file: GitlabDiff, base: string | undefined, head: string, loadFile: LoadFile): Promise<FileChange> {
+  const { patch, isBinary } = await readPatch(file, base, head, loadFile)
+  const hunks = isBinary ? [] : parseHunks(patch.split('\n'))
+  return {
+    path: file.new_path,
+    previousPath: file.renamed_file ? file.old_path : undefined,
+    status: file.new_file ? 'added' : file.deleted_file ? 'removed' : file.renamed_file ? 'renamed' : 'modified',
+    ...countChanges(hunks),
+    isBinary,
+    sha: await computeContentHash(`${file.old_path}\n${file.new_path}\n${patch}${isBinary ? head : ''}`),
+    hunks,
+  }
+}
+
+export function createGitlabCommitSource(ref: GitlabRef & { sha: string }, credentials?: Credentials, transport?: GitlabFetch): DiffSource {
+  const instance = normalizeGitlabInstance(ref.instance)
+  const client = createGitlabClient(instance, credentials, transport)
+  const commitRef = { kind: 'gitlab-commit', instance, project: ref.project, sha: ref.sha } as const
+  let project: number | undefined
+  async function sourceProject(): Promise<number> {
+    if (project !== undefined)
+      return project
+    const mr = await client.json<MergeRequest>(`/projects/${encodeURIComponent(ref.project)}/merge_requests/${ref.number}`)
+    project = mr.source_project_id ?? mr.target_project_id
+    return project
+  }
+  const loadFile: LoadFile = async (path, sha) => loadGitlabFile(client, await sourceProject(), path, sha)
+  return {
+    key: async () => serializeRef(commitRef),
+    async fetch() {
+      const path = `/projects/${await sourceProject()}/repository/commits/${encodeURIComponent(ref.sha)}`
+      const [commit, diffs] = await Promise.all([client.json<GitlabCommit>(path), client.paginate<GitlabDiff>(`${path}/diff`)])
+      const base = commit.parent_ids[0]
+      const [subject = '', ...body] = commit.message.split('\n')
+      return {
+        ref: commitRef,
+        title: subject,
+        label: commit.id.slice(0, 7),
+        description: body.join('\n').trim(),
+        url: commit.web_url,
+        author: { name: commit.author_name },
+        createdAt: commit.created_at,
+        base: base ? { sha: base, ref: base.slice(0, 7) } : undefined,
+        head: { sha: commit.id, ref: commit.id.slice(0, 7) },
+        commits: [normalizeCommit(commit)],
+        files: await Promise.all(diffs.map(file => normalizeFile(file, base, commit.id, loadFile))),
+      }
+    },
+    loadFile,
+    auth: 'gitlab-token',
+  }
+}
+
 export function createGitlabMergeRequestSource(ref: GitlabRef, credentials?: Credentials, transport?: GitlabFetch): DiffSource {
   const instance = normalizeGitlabInstance(ref.instance)
   const client = createGitlabClient(instance, credentials, transport)
@@ -114,46 +211,20 @@ export function createGitlabMergeRequestSource(ref: GitlabRef, credentials?: Cre
     const project = sha === mr.diff_refs?.head_sha ? mr.source_project_id : mr.target_project_id
     if (project === null)
       throw new Error('The source project was deleted; full file contents are unavailable.')
+    return loadGitlabFile(client, project, path, sha)
+  }
+
+  async function fetchDiffs(): Promise<GitlabDiff[]> {
     try {
-      return await (await client.request(`/projects/${project}/repository/files/${encodeURIComponent(path)}/raw?ref=${encodeURIComponent(sha)}`)).text()
+      return await client.paginate<GitlabDiff>(`${mrPath}/diffs`)
     }
     catch (error) {
-      if (error instanceof GitlabApiError && error.status === 404)
-        return undefined
-      throw error
-    }
-  }
-
-  async function readPatch(file: GitlabDiff, mr: MergeRequest): Promise<{ patch: string, isBinary: boolean }> {
-    let patch = file.diff
-    let isBinary = /^Binary files .* differ$/m.test(patch)
-    // GitLab may omit a patch due to diff limits. Recover it from immutable file versions.
-    if (!patch || file.collapsed || file.too_large) {
-      const [oldText, newText] = await Promise.all([
-        file.new_file ? undefined : loadFile(file.old_path, mr.diff_refs!.base_sha),
-        file.deleted_file ? undefined : loadFile(file.new_path, mr.diff_refs!.head_sha),
-      ])
-      isBinary = !!oldText?.includes('\0') || !!newText?.includes('\0')
-      if (!isBinary) {
-        if ((!file.new_file && oldText === undefined) || (!file.deleted_file && newText === undefined))
-          throw new Error(`GitLab omitted the patch and file contents for ${file.new_path}. Check project access or retry once the MR diff is ready.`)
-        patch = createTwoFilesPatch(file.old_path, file.new_path, oldText ?? '', newText ?? '')
-      }
-    }
-    return { patch, isBinary }
-  }
-
-  async function normalizeFile(file: GitlabDiff, mr: MergeRequest): Promise<FileChange> {
-    const { patch, isBinary } = await readPatch(file, mr)
-    const hunks = isBinary ? [] : parseHunks(patch.split('\n'))
-    return {
-      path: file.new_path,
-      previousPath: file.renamed_file ? file.old_path : undefined,
-      status: file.new_file ? 'added' : file.deleted_file ? 'removed' : file.renamed_file ? 'renamed' : 'modified',
-      ...countChanges(hunks),
-      isBinary,
-      sha: await computeContentHash(`${file.old_path}\n${file.new_path}\n${patch}${isBinary ? mr.diff_refs!.head_sha : ''}`),
-      hunks,
+      if (!(error instanceof GitlabApiError) || error.status !== 404)
+        throw error
+      const changes = await client.json<{ changes: GitlabDiff[], overflow?: boolean }>(`${mrPath}/changes?access_raw_diffs=true`)
+      if (changes.overflow)
+        throw new Error('This GitLab instance truncated the MR file list. Download its raw diff and use Upload a diff to review all files.')
+      return changes.changes
     }
   }
 
@@ -164,19 +235,7 @@ export function createGitlabMergeRequestSource(ref: GitlabRef, credentials?: Cre
       const mr = current
       if (!mr.diff_refs?.base_sha || !mr.diff_refs.head_sha)
         throw new Error('GitLab is still preparing this merge request diff. Please retry shortly.')
-      let diffs: GitlabDiff[]
-      try {
-        diffs = await client.paginate<GitlabDiff>(`${mrPath}/diffs`)
-      }
-      catch (error) {
-        // GitLab before 15.7 provides /changes instead of the paginated /diffs endpoint.
-        if (!(error instanceof GitlabApiError) || error.status !== 404)
-          throw error
-        const changes = await client.json<{ changes: GitlabDiff[], overflow?: boolean }>(`${mrPath}/changes?access_raw_diffs=true`)
-        if (changes.overflow)
-          throw new Error('This GitLab instance truncated the MR file list. Download its raw diff and use Upload a diff to review all files.')
-        diffs = changes.changes
-      }
+      const [diffs, commits] = await Promise.all([fetchDiffs(), client.paginate<GitlabCommit>(`${mrPath}/commits`)])
       const expected = Number.parseInt(mr.changes_count ?? '', 10)
       if (Number.isFinite(expected) && (diffs.length < expected || (mr.changes_count?.endsWith('+') && diffs.length <= expected)))
         throw new Error('GitLab truncated this MR file list. Download its raw diff and use Upload a diff to review all files.')
@@ -192,7 +251,8 @@ export function createGitlabMergeRequestSource(ref: GitlabRef, credentials?: Cre
         createdAt: mr.created_at,
         updatedAt: mr.updated_at,
         pullRequest: { state: mr.state === 'merged' ? 'merged' : mr.state === 'closed' ? 'closed' : mr.draft || mr.work_in_progress ? 'draft' : 'open' },
-        files: await Promise.all(diffs.map(file => normalizeFile(file, mr))),
+        commits: commits.toReversed().map(normalizeCommit),
+        files: await Promise.all(diffs.map(file => normalizeFile(file, mr.diff_refs!.base_sha, mr.diff_refs!.head_sha, loadFile))),
       }
     },
     fingerprint: async () => (await client.json<MergeRequest>(mrPath)).diff_refs?.head_sha ?? '',

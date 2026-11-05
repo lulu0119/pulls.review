@@ -36,6 +36,9 @@ export function routeForRef(ref: SourceRef): string | undefined {
       return `/gh/${ref.owner}/${ref.repo}/compare/${ref.base}...${ref.head}`
     case 'github-commit':
       return `/gh/${ref.owner}/${ref.repo}/commit/${ref.sha}`
+    case 'gitlab-commit':
+      // Reached by ?commit= on the parent MR route.
+      return undefined
     case 'paste':
       // Deliberately unroutable: a paste has no live source to reopen from a link.
       return undefined
@@ -69,7 +72,7 @@ export function repoRoute(owner: string, repo: string): string {
 
 /** Where a diff sits, e.g. its repo's PR list - `undefined` for a ref with no parent view. */
 export function parentForRef(ref: SourceRef): { route: string, label: string } | undefined {
-  if (ref.kind === 'gitlab-mr')
+  if (ref.kind === 'gitlab-mr' || ref.kind === 'gitlab-commit')
     return undefined
   return ref.kind === 'paste' || ref.kind === 'local'
     ? undefined

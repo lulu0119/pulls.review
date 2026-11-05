@@ -40,6 +40,13 @@ reviews, refresh, grouping and AI analysis/chat. Older GitLab versions use the
 `/changes` endpoint. GitLab comments, approvals and publishing shared analyses
 are not implemented; use the original MR page for those actions.
 
+MR commits are loaded oldest first and included in the AI context. The commit
+picker opens each commit against its first parent; **All changes** returns to
+the whole MR. Older cached MRs automatically refresh their commit metadata while
+preserving their AI results. Group explanations appear in the left sidebar;
+new AI analyses require an explanation for every group and subgroup. Re-run AI
+analysis to regenerate older results that omitted explanations or commit context.
+
 The Pages workflow builds on pushes to `main` and uses hash routes so deep links
 and refresh work without a server rewrite. Other deployment targets retain
 history routing.

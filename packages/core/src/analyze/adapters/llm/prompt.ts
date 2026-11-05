@@ -27,7 +27,7 @@ export function renderFilesAsText(files: FileChange[]): string {
 export const INLINE_DIFF_CHAR_LIMIT = 200_000
 
 const ROLE_SECTION = `<role>
-You organize a GitHub pull request's changed files into review groups, so a reviewer can read the PR feature by feature instead of file by file.
+You organize a pull request or GitLab merge request's changed files into review groups, so a reviewer can read the change feature by feature instead of file by file.
 </role>
 
 <grouping_principles>
@@ -42,6 +42,7 @@ You organize a GitHub pull request's changed files into review groups, so a revi
 
 const OUTPUT_SECTION = `<output>
 - "summary" and "overallSummary" explain why over what, in 1-3 sentences of Markdown.
+- Every group and child MUST have a non-empty "summary". A label or file list alone is not an explanation.
 - "key" is short, stable kebab-case. "label" is at most 4 words.
 - "fileNotes", "lineNotes" and "critical" are optional and sparing. Add a note only where it saves the reviewer time - non-obvious logic, a subtle behavior change, a risk - never to explain the obvious. Mark "critical" only what deserves extra care; most groups and files are not critical.
 - Write "label", "summary", "overallSummary" and note "text" in the language named at the end of the user message. Keep code, paths and identifiers as they are.

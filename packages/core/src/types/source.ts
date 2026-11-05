@@ -7,6 +7,7 @@ import { parseTarget } from '../local/target'
 /** Identifies one diff, whatever produced it. Persisted on `DiffsPayload.ref`. */
 export const SourceRefSchema = v.variant('kind', [
   v.object({ kind: v.literal('gitlab-mr'), instance: v.string(), project: v.string(), number: v.string() }),
+  v.object({ kind: v.literal('gitlab-commit'), instance: v.string(), project: v.string(), sha: v.string() }),
   v.object({ kind: v.literal('github-pr'), owner: v.string(), repo: v.string(), number: v.string() }),
   /** What `head` adds since it forked from `base` (`base...head`); either may be a branch, tag or sha. */
   v.object({ kind: v.literal('github-compare'), owner: v.string(), repo: v.string(), base: v.string(), head: v.string() }),
@@ -22,6 +23,8 @@ export function serializeRef(ref: SourceRef): string {
   switch (ref.kind) {
     case 'gitlab-mr':
       return `gitlab:${encodeURIComponent(ref.instance)}:${encodeURIComponent(ref.project)}!${ref.number}`
+    case 'gitlab-commit':
+      return `gitlab:${encodeURIComponent(ref.instance)}:${encodeURIComponent(ref.project)}@${ref.sha}`
     case 'github-pr':
       return `github:${ref.owner}/${ref.repo}#${ref.number}`
     case 'github-compare':
@@ -40,6 +43,7 @@ export function serializeRef(ref: SourceRef): string {
 export function isListed(ref: SourceRef): boolean {
   switch (ref.kind) {
     case 'github-commit':
+    case 'gitlab-commit':
       return false
     case 'local':
       return parseTarget(ref.target).kind !== 'commit'
