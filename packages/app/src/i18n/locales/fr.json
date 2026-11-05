@@ -413,13 +413,34 @@
   },
   "rules": {
     "allFiles": "Tous les fichiers",
-    "code": { "label": "Code", "summary": "Modifications du code source." },
-    "other": { "label": "Autre", "summary": "Autres modifications ne correspondant à aucune catégorie existante." },
-    "docs": { "label": "Docs", "summary": "Mises à jour de la documentation." },
-    "tests": { "label": "Tests", "summary": "Couverture de tests de la modification." },
-    "config": { "label": "Config", "summary": "Modifications de configuration." },
-    "deps": { "label": "Dépendances", "summary": "Changements de version des dépendances." },
-    "generated": { "label": "Générés", "summary": "Modifications de fichiers générés ou de build." }
+    "code": {
+      "label": "Code",
+      "summary": "Modifications du code source."
+    },
+    "other": {
+      "label": "Autre",
+      "summary": "Autres modifications ne correspondant à aucune catégorie existante."
+    },
+    "docs": {
+      "label": "Docs",
+      "summary": "Mises à jour de la documentation."
+    },
+    "tests": {
+      "label": "Tests",
+      "summary": "Couverture de tests de la modification."
+    },
+    "config": {
+      "label": "Config",
+      "summary": "Modifications de configuration."
+    },
+    "deps": {
+      "label": "Dépendances",
+      "summary": "Changements de version des dépendances."
+    },
+    "generated": {
+      "label": "Générés",
+      "summary": "Modifications de fichiers générés ou de build."
+    }
   },
   "errors": {
     "tokenRequired": "Un token GitHub est requis pour écrire sur cette pull request.",
@@ -451,5 +472,23 @@
       "current": "Branche actuelle",
       "github": "Ou une pull request, une comparaison ou un commit GitHub"
     }
+  },
+  "gitlab": {
+    "urlPlaceholder": "GitHub PR / GitLab MR URL",
+    "pasteHint": "Paste a GitHub pull request or GitLab merge request URL.",
+    "configure": "Configure GitLab",
+    "description": "Connect GitLab.com or your own GitLab instance. For intranet access, install Tampermonkey or Violentmonkey and the connector below, then reload the page. Your browser must be on the same network or VPN.",
+    "installConnector": "Install GitLab connector userscript",
+    "instance": "GitLab instance URL",
+    "token": "GitLab access token",
+    "tokenHint": "Use a personal/project access token with read_api scope for private projects. Leave empty for public projects.",
+    "connection": "Connection method",
+    "userscript": "Browser connector (recommended for intranet / HTTP / no CORS)",
+    "direct": "Direct browser access (requires HTTPS and GitLab CORS configuration)",
+    "privacy": "Tokens stay in this browser and are sent only to the configured GitLab instance. GitHub Pages receives no token or repository contents. AI analysis sends code to your selected model provider only when you run it.",
+    "test": "Test connection",
+    "edit": "Edit",
+    "saved": "Saved. You can open an MR link from the home page.",
+    "connected": "Connected successfully."
   }
 }

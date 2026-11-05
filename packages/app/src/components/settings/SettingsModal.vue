@@ -30,6 +30,7 @@ const llmModels = useLlmModels()
   >
     <SettingsPanel
       v-model:tab="settingsModalTab"
+      :gitlab-connections="settings.gitlab"
       :github-token-set="!!settings.githubToken"
       :github-token-meta="githubToken.meta.value"
       :github-token-busy="githubToken.busy.value"
@@ -38,6 +39,7 @@ const llmModels = useLlmModels()
       :models="llmModels.models.value"
       :models-loading="llmModels.loading.value"
       :models-error="llmModels.error.value"
+      @save-gitlab="settings = { ...settings, gitlab: $event }"
       @save-github-token="githubToken.saveToken($event)"
       @update:llm-settings="settings = { ...settings, llm: $event }"
     />

@@ -4,8 +4,15 @@ import { defaultLlmSettings, deriveProvider } from '@pulls.review/core/analyze'
 import { detectLocale, isLocale } from '@pulls.review/core/locales'
 import { useLocalStorage } from '@vueuse/core'
 
+export interface GitlabConnection {
+  instance: string
+  token: string
+  transport: 'direct' | 'userscript'
+}
+
 export interface Settings {
   githubToken: string
+  gitlab: GitlabConnection[]
   llm: LlmSettings
   /** UI language and the language the LLM writes summaries in; seeded from the browser's preference. */
   locale: Locale
@@ -13,6 +20,7 @@ export interface Settings {
 
 const defaultSettings: Settings = {
   githubToken: '',
+  gitlab: [],
   llm: defaultLlmSettings,
   locale: detectLocale(),
 }

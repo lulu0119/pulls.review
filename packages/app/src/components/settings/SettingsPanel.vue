@@ -2,6 +2,7 @@
 import type { LlmSettings } from '@pulls.review/core/analyze'
 import type { ModelOption } from '@pulls.review/core/llm'
 import type { StoredGithubTokenMeta } from '../../composables/useGithubTokenMeta'
+import type { GitlabConnection } from '../../state/settings'
 import type { SettingsTab } from '../../state/settingsModal'
 import { resolveModel } from '@pulls.review/core/analyze'
 import { TabsContent, TabsIndicator, TabsList, TabsRoot, TabsTrigger } from 'reka-ui'
@@ -10,12 +11,14 @@ import { useI18n } from 'vue-i18n'
 import AutoFetchFullFileSettingsSection from './AutoFetchFullFileSettingsSection.vue'
 import AutoRefreshSettingsSection from './AutoRefreshSettingsSection.vue'
 import GithubTokenSettings from './GithubTokenSettings.vue'
+import GitlabSettings from './GitlabSettings.vue'
 import LayoutSettingsSection from './LayoutSettingsSection.vue'
 import LlmSettingsSection from './LlmSettingsSection.vue'
 import NavigationSettingsSection from './NavigationSettingsSection.vue'
 import SyntaxThemeSettingsSection from './SyntaxThemeSettingsSection.vue'
 
 const props = defineProps<{
+  gitlabConnections?: GitlabConnection[]
   githubTokenSet: boolean
   githubTokenMeta: StoredGithubTokenMeta | null
   githubTokenBusy?: boolean
@@ -27,6 +30,7 @@ const props = defineProps<{
 }>()
 
 defineEmits<{
+  'saveGitlab': [connections: GitlabConnection[]]
   /** Save a new GitHub token (validated by the container); `''` removes it. */
   'saveGithubToken': [token: string]
   'update:llmSettings': [value: LlmSettings]
@@ -44,6 +48,7 @@ const tabs = computed(() => [
   { value: 'appearance', label: t('settings.tabs.appearance'), icon: 'i-ph:paint-brush-duotone' },
   { value: 'behavior', label: t('settings.tabs.behavior'), icon: 'i-ph:sliders-duotone' },
   { value: 'github', label: t('settings.tabs.github'), icon: 'i-ph:github-logo-duotone', attention: !props.githubTokenSet },
+  { value: 'gitlab', label: 'GitLab', icon: 'i-simple-icons:gitlab' },
   { value: 'ai', label: t('settings.tabs.ai'), icon: 'i-ph:sparkle-duotone', attention: !llmSetup.value },
 ] satisfies { value: SettingsTab, label: string, icon: string, attention?: boolean }[])
 </script>
@@ -90,6 +95,10 @@ const tabs = computed(() => [
         :error="githubTokenError"
         @save="$emit('saveGithubToken', $event)"
       />
+    </TabsContent>
+
+    <TabsContent value="gitlab" class="flex flex-col gap-4 p4 outline-none data-[state=inactive]:hidden">
+      <GitlabSettings :connections="gitlabConnections ?? []" @save="$emit('saveGitlab', $event)" />
     </TabsContent>
 
     <TabsContent value="ai" class="flex flex-col gap-4 p4 outline-none data-[state=inactive]:hidden">

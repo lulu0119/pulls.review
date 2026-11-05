@@ -11,6 +11,39 @@
 
 Pull request review made simple. Groups changed files, summarizes what matters, and reviews them one scope at a time.
 
+## GitLab support in this fork
+
+Hosted at **https://lulu0119.github.io/pulls.review/**. Paste a GitLab merge request
+URL into the home page, including subgroup paths such as
+`https://gitlab.company.test/team/subgroup/repo/-/merge_requests/42`.
+
+1. Open **Configure GitLab** and save the instance root URL (include a relative URL
+   root if your installation uses one; exclude dashboard and project paths).
+2. For private projects, enter a personal or project access token with `read_api`.
+   Each instance has its own token, stored only in this browser.
+3. For intranet, HTTP, or instances without CORS, install Tampermonkey or
+   Violentmonkey, install the **GitLab connector** linked in Settings, and reload
+   the page. Leave the connection method on **Browser connector**. Allow the
+   extension to connect to your instance when prompted, and connect your VPN if
+   needed. No reverse proxy or public exposure of GitLab is required.
+4. Use **Test connection**, then open your MR URL from the home page.
+
+Direct access is also available for HTTPS instances allowing the site's origin
+through CORS. The connector only reads `/api/v4/` on instances explicitly saved
+for connector access, omits session cookies, and refuses redirects. GitHub Pages
+hosts static files; GitLab API calls originate from the user's computer. Model
+analysis is optional and sends code to the selected model provider when run.
+
+Supported: MR metadata and diffs, nested groups, renames/additions/deletions,
+binary files, pagination, full-file loading (including cross-project MRs), cached
+reviews, refresh, grouping and AI analysis/chat. Older GitLab versions use the
+`/changes` endpoint. GitLab comments, approvals and publishing shared analyses
+are not implemented; use the original MR page for those actions.
+
+The Pages workflow builds on pushes to `main` and uses hash routes so deep links
+and refresh work without a server rewrite. Other deployment targets retain
+history routing.
+
 ## Use on Website
 
 To use pulls.review on the website, simply visit [pulls.review](https://pulls.review) and follow the instructions to connect your GitHub account and start reviewing pull requests directly in your browser.

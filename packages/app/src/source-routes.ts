@@ -1,6 +1,7 @@
 import type { SourceRef } from '@pulls.review/core/types'
 import type { RouteComponent, RouteLocation, RouteRecordRaw } from 'vue-router'
 import { parseGithubUrl, splitRange } from '@pulls.review/core/github'
+import { parseGitlabUrl } from '@pulls.review/core/gitlab'
 
 /**
  * The one place that maps diff refs to app routes and back. Components link through
@@ -8,13 +9,14 @@ import { parseGithubUrl, splitRange } from '@pulls.review/core/github'
  */
 
 /** Every ref kind with a page of its own in this build. */
-export type RoutableRef = Extract<SourceRef, { kind: 'github-pr' | 'github-compare' | 'github-commit' }>
+export type RoutableRef = Extract<SourceRef, { kind: 'github-pr' | 'github-compare' | 'github-commit' | 'gitlab-mr' }>
 
 /** One route per routable ref kind, named after the kind so a route reads back into its ref. */
-export function routes(component: () => Promise<RouteComponent>): RouteRecordRaw[] {
+export function routes(component: () => Promise<RouteComponent>, gitlabComponent?: () => Promise<RouteComponent>): RouteRecordRaw[] {
   // The page receives its ref as the `sourceRef` prop rather than reading the route.
   const props = (route: RouteLocation) => ({ sourceRef: refFromRoute(route) })
   return [
+    ...gitlabComponent ? [{ name: 'gitlab-mr', path: '/gl/:instance/:project/:number(\\d+)', component: gitlabComponent, props }] : [],
     { name: 'github-pr', path: '/gh/:owner/:repo/:number(\\d+)', component, props },
     // A range is `base...head`; either side may be a branch with slashes.
     { name: 'github-compare', path: '/gh/:owner/:repo/compare/:range(.+\\.\\.\\..+)', component, props },
@@ -26,6 +28,8 @@ export function routeForRef(ref: RoutableRef): string
 export function routeForRef(ref: SourceRef): string | undefined
 export function routeForRef(ref: SourceRef): string | undefined {
   switch (ref.kind) {
+    case 'gitlab-mr':
+      return `/gl/${encodeURIComponent(ref.instance)}/${encodeURIComponent(ref.project)}/${ref.number}`
     case 'github-pr':
       return `/gh/${ref.owner}/${ref.repo}/${ref.number}`
     case 'github-compare':
@@ -46,6 +50,8 @@ export function refFromRoute(route: Pick<RouteLocation, 'name' | 'params'>): Rou
   const owner = param('owner')
   const repo = param('repo')
   switch (route.name) {
+    case 'gitlab-mr':
+      return { kind: 'gitlab-mr', instance: param('instance'), project: param('project'), number: param('number') }
     case 'github-pr':
       return { kind: 'github-pr', owner, repo, number: param('number') }
     case 'github-compare': {
@@ -63,9 +69,16 @@ export function repoRoute(owner: string, repo: string): string {
 
 /** Where a diff sits, e.g. its repo's PR list - `undefined` for a ref with no parent view. */
 export function parentForRef(ref: SourceRef): { route: string, label: string } | undefined {
+  if (ref.kind === 'gitlab-mr')
+    return undefined
   return ref.kind === 'paste' || ref.kind === 'local'
     ? undefined
     : { route: repoRoute(ref.owner, ref.repo), label: `${ref.owner}/${ref.repo}` }
+}
+
+export function routeFromSourceUrl(text: string, gitlabInstances: string[] = []): string | undefined {
+  const gitlab = parseGitlabUrl(text, gitlabInstances)
+  return gitlab ? routeForRef(gitlab) : routeFromGithubUrl(text)
 }
 
 /**

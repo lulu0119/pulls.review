@@ -413,14 +413,26 @@
   },
   "rules": {
     "allFiles": "All files",
-    "code": { "label": "Code", "summary": "Source changes." },
+    "code": {
+      "label": "Code",
+      "summary": "Source changes."
+    },
     "other": {
       "label": "Other",
       "summary": "Other changes that don't fit an existing category."
     },
-    "docs": { "label": "Docs", "summary": "Documentation updates." },
-    "tests": { "label": "Tests", "summary": "Test coverage for the change." },
-    "config": { "label": "Config", "summary": "Configuration changes." },
+    "docs": {
+      "label": "Docs",
+      "summary": "Documentation updates."
+    },
+    "tests": {
+      "label": "Tests",
+      "summary": "Test coverage for the change."
+    },
+    "config": {
+      "label": "Config",
+      "summary": "Configuration changes."
+    },
     "deps": {
       "label": "Dependencies",
       "summary": "Dependency version changes."
@@ -460,5 +472,23 @@
       "current": "Checked out",
       "github": "Or a GitHub pull request, compare or commit"
     }
+  },
+  "gitlab": {
+    "urlPlaceholder": "GitHub PR / GitLab MR URL",
+    "pasteHint": "Paste a GitHub pull request or GitLab merge request URL.",
+    "configure": "Configure GitLab",
+    "description": "Connect GitLab.com or your own GitLab instance. For intranet access, install Tampermonkey or Violentmonkey and the connector below, then reload the page. Your browser must be on the same network or VPN.",
+    "installConnector": "Install GitLab connector userscript",
+    "instance": "GitLab instance URL",
+    "token": "GitLab access token",
+    "tokenHint": "Use a personal/project access token with read_api scope for private projects. Leave empty for public projects.",
+    "connection": "Connection method",
+    "userscript": "Browser connector (recommended for intranet / HTTP / no CORS)",
+    "direct": "Direct browser access (requires HTTPS and GitLab CORS configuration)",
+    "privacy": "Tokens stay in this browser and are sent only to the configured GitLab instance. GitHub Pages receives no token or repository contents. AI analysis sends code to your selected model provider only when you run it.",
+    "test": "Test connection",
+    "edit": "Edit",
+    "saved": "Saved. You can open an MR link from the home page.",
+    "connected": "Connected successfully."
   }
 }

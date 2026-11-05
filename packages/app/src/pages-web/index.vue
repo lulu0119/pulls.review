@@ -21,7 +21,9 @@ import { useDocumentTitle } from '../composables/useDocumentTitle'
 import { useRecentDiffs } from '../composables/useRecentDiffs'
 import { useRecentRepositories } from '../composables/useRecentRepositories'
 import { formatTimeAgo } from '../i18n/time-ago'
-import { routeForRef, routeFromGithubUrl } from '../source-routes'
+import { routeForRef, routeFromSourceUrl } from '../source-routes'
+import { settings } from '../state/settings'
+import { openSettings } from '../state/settingsModal'
 
 const DEMO_PRS = [
   { owner: 'antfu', repo: 'pulls.review', number: 45, state: 'merged', title: 'feat: review any GitHub compare range or single commit' },
@@ -37,7 +39,7 @@ const url = ref('')
 const loadDiffOpen = ref(false)
 const guide = ref<LandingGuide>()
 
-const parsed = computed(() => routeFromGithubUrl(url.value))
+const parsed = computed(() => routeFromSourceUrl(url.value, settings.value.gitlab.map(connection => connection.instance)))
 
 function go() {
   if (parsed.value)
@@ -111,7 +113,7 @@ useDocumentTitle(() => t('landing.documentTitle'), ' - ')
           </p>
           <div class="max-w-md flex flex-col gap-2">
             <form class="flex items-stretch gap-2" @submit.prevent="go">
-              <FormTextInput v-model="url" icon="i-ph:link-simple-duotone" placeholder="https://github.com/owner/repo/pull/123" class="flex-1" />
+              <FormTextInput v-model="url" icon="i-ph:link-simple-duotone" :placeholder="$t('gitlab.urlPlaceholder')" class="flex-1" />
               <ActionButton
                 type="submit"
                 variant="primary"
@@ -123,8 +125,11 @@ useDocumentTitle(() => t('landing.documentTitle'), ' - ')
               </ActionButton>
             </form>
             <p class="text-xs op-fade">
-              {{ $t('landing.pasteHint') }}
+              {{ $t('gitlab.pasteHint') }}
             </p>
+            <ActionButton variant="text" icon="i-simple-icons:gitlab" @click="openSettings('gitlab')">
+              {{ $t('gitlab.configure') }}
+            </ActionButton>
           </div>
         </div>
 

@@ -6,6 +6,7 @@ import { parseTarget } from '../local/target'
 
 /** Identifies one diff, whatever produced it. Persisted on `DiffsPayload.ref`. */
 export const SourceRefSchema = v.variant('kind', [
+  v.object({ kind: v.literal('gitlab-mr'), instance: v.string(), project: v.string(), number: v.string() }),
   v.object({ kind: v.literal('github-pr'), owner: v.string(), repo: v.string(), number: v.string() }),
   /** What `head` adds since it forked from `base` (`base...head`); either may be a branch, tag or sha. */
   v.object({ kind: v.literal('github-compare'), owner: v.string(), repo: v.string(), base: v.string(), head: v.string() }),
@@ -19,6 +20,8 @@ export type SourceRef = v.InferOutput<typeof SourceRefSchema>
 /** The cache key for a ref - the only place a key is derived. */
 export function serializeRef(ref: SourceRef): string {
   switch (ref.kind) {
+    case 'gitlab-mr':
+      return `gitlab:${encodeURIComponent(ref.instance)}:${encodeURIComponent(ref.project)}!${ref.number}`
     case 'github-pr':
       return `github:${ref.owner}/${ref.repo}#${ref.number}`
     case 'github-compare':
@@ -48,6 +51,7 @@ export function isListed(ref: SourceRef): boolean {
 /** Secrets a source may need, read on every use so a token saved later applies at once. */
 export interface Credentials {
   githubToken: () => Promise<string | undefined>
+  gitlabToken?: (instance: string) => Promise<string | undefined>
 }
 
 export function staticCredentials(githubToken?: string): Credentials {
@@ -71,7 +75,7 @@ export interface DiffSource {
   reviews?: ReviewsApi
   sharing?: SharingApi
   /** The credential a failed load can be retried with, so the view can offer to enter it. */
-  auth?: 'github-token'
+  auth?: 'github-token' | 'gitlab-token'
 }
 
 export interface Viewer {

@@ -1,11 +1,18 @@
 import type { RoutableRef } from './source-routes'
 import { describe, expect, it } from 'vitest'
 import { createMemoryHistory, createRouter } from 'vue-router'
-import { parentForRef, refFromRoute, routeForRef, routeFromGithubUrl, routes } from './source-routes'
+import { parentForRef, refFromRoute, routeForRef, routeFromGithubUrl, routeFromSourceUrl, routes } from './source-routes'
 
-const router = createRouter({ history: createMemoryHistory(), routes: routes(async () => ({})) })
+const router = createRouter({ history: createMemoryHistory(), routes: routes(async () => ({}), async () => ({})) })
 
 describe('source routes', () => {
+  it('round-trips a GitLab MR including encoded instance, port and subgroups', () => {
+    const ref = { kind: 'gitlab-mr', instance: 'https://git.internal:8443/gitlab', project: 'team/sub/repo', number: '42' } as const
+    const route = routeForRef(ref)
+    expect(refFromRoute(router.resolve(route))).toEqual(ref)
+    expect(routeFromSourceUrl(`${ref.instance}/${ref.project}/-/merge_requests/42/diffs`, [ref.instance])).toBe(route)
+    expect(parentForRef(ref)).toBeUndefined()
+  })
   it.each<RoutableRef>([
     { kind: 'github-pr', owner: 'antfu', repo: 'diffs', number: '12' },
     { kind: 'github-compare', owner: 'antfu', repo: 'diffs', base: 'main', head: 'feat/nested-branch' },

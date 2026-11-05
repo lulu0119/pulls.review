@@ -413,13 +413,34 @@
   },
   "rules": {
     "allFiles": "모든 파일",
-    "code": { "label": "코드", "summary": "소스 변경." },
-    "other": { "label": "기타", "summary": "기존 분류에 맞지 않는 기타 변경." },
-    "docs": { "label": "문서", "summary": "문서 업데이트." },
-    "tests": { "label": "테스트", "summary": "이 변경에 대한 테스트." },
-    "config": { "label": "설정", "summary": "설정 변경." },
-    "deps": { "label": "의존성", "summary": "의존성 버전 변경." },
-    "generated": { "label": "생성 파일", "summary": "생성물 또는 빌드 산출물 변경." }
+    "code": {
+      "label": "코드",
+      "summary": "소스 변경."
+    },
+    "other": {
+      "label": "기타",
+      "summary": "기존 분류에 맞지 않는 기타 변경."
+    },
+    "docs": {
+      "label": "문서",
+      "summary": "문서 업데이트."
+    },
+    "tests": {
+      "label": "테스트",
+      "summary": "이 변경에 대한 테스트."
+    },
+    "config": {
+      "label": "설정",
+      "summary": "설정 변경."
+    },
+    "deps": {
+      "label": "의존성",
+      "summary": "의존성 버전 변경."
+    },
+    "generated": {
+      "label": "생성 파일",
+      "summary": "생성물 또는 빌드 산출물 변경."
+    }
   },
   "errors": {
     "tokenRequired": "이 pull request에 쓰려면 GitHub 토큰이 필요합니다.",
@@ -451,5 +472,23 @@
       "current": "체크아웃됨",
       "github": "또는 GitHub 풀 리퀘스트, 비교 또는 커밋"
     }
+  },
+  "gitlab": {
+    "urlPlaceholder": "GitHub PR / GitLab MR URL",
+    "pasteHint": "Paste a GitHub pull request or GitLab merge request URL.",
+    "configure": "Configure GitLab",
+    "description": "Connect GitLab.com or your own GitLab instance. For intranet access, install Tampermonkey or Violentmonkey and the connector below, then reload the page. Your browser must be on the same network or VPN.",
+    "installConnector": "Install GitLab connector userscript",
+    "instance": "GitLab instance URL",
+    "token": "GitLab access token",
+    "tokenHint": "Use a personal/project access token with read_api scope for private projects. Leave empty for public projects.",
+    "connection": "Connection method",
+    "userscript": "Browser connector (recommended for intranet / HTTP / no CORS)",
+    "direct": "Direct browser access (requires HTTPS and GitLab CORS configuration)",
+    "privacy": "Tokens stay in this browser and are sent only to the configured GitLab instance. GitHub Pages receives no token or repository contents. AI analysis sends code to your selected model provider only when you run it.",
+    "test": "Test connection",
+    "edit": "Edit",
+    "saved": "Saved. You can open an MR link from the home page.",
+    "connected": "Connected successfully."
   }
 }

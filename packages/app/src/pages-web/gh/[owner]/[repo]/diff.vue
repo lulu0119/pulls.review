@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { RoutableRef } from '../../../../source-routes'
+import type { GithubRef } from '@pulls.review/core/github'
 import ActionButton from '@antfu/design/components/Action/ActionButton.vue'
 import FeedbackEmptyState from '@antfu/design/components/Feedback/FeedbackEmptyState.vue'
 import FeedbackLoading from '@antfu/design/components/Feedback/FeedbackLoading.vue'
@@ -13,7 +13,7 @@ import { useDocumentTitle } from '../../../../composables/useDocumentTitle'
 import { resolveStoredTokenMeta } from '../../../../composables/useGithubTokenMeta'
 import { createDiffsStore } from '../../../../stores/diffs-store'
 
-const props = defineProps<{ sourceRef: RoutableRef }>()
+const props = defineProps<{ sourceRef: GithubRef }>()
 
 const route = useRoute()
 const { cache, credentials, llm } = useAppContext()
