@@ -413,34 +413,13 @@
   },
   "rules": {
     "allFiles": "Todos os arquivos",
-    "code": {
-      "label": "Código",
-      "summary": "Alterações no código-fonte."
-    },
-    "other": {
-      "label": "Outros",
-      "summary": "Outras alterações que não se encaixam em uma categoria existente."
-    },
-    "docs": {
-      "label": "Documentação",
-      "summary": "Atualizações de documentação."
-    },
-    "tests": {
-      "label": "Testes",
-      "summary": "Cobertura de testes da alteração."
-    },
-    "config": {
-      "label": "Configuração",
-      "summary": "Alterações de configuração."
-    },
-    "deps": {
-      "label": "Dependências",
-      "summary": "Alterações de versão de dependências."
-    },
-    "generated": {
-      "label": "Gerados",
-      "summary": "Alterações em arquivos gerados ou de build."
-    }
+    "code": { "label": "Código", "summary": "Alterações no código-fonte." },
+    "other": { "label": "Outros", "summary": "Outras alterações que não se encaixam em uma categoria existente." },
+    "docs": { "label": "Documentação", "summary": "Atualizações de documentação." },
+    "tests": { "label": "Testes", "summary": "Cobertura de testes da alteração." },
+    "config": { "label": "Configuração", "summary": "Alterações de configuração." },
+    "deps": { "label": "Dependências", "summary": "Alterações de versão de dependências." },
+    "generated": { "label": "Gerados", "summary": "Alterações em arquivos gerados ou de build." }
   },
   "errors": {
     "tokenRequired": "É necessário um token do GitHub para escrever neste pull request.",

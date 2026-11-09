@@ -413,34 +413,13 @@
   },
   "rules": {
     "allFiles": "所有檔案",
-    "code": {
-      "label": "程式碼",
-      "summary": "原始碼變更。"
-    },
-    "other": {
-      "label": "其他",
-      "summary": "不屬於現有分類的其他變更。"
-    },
-    "docs": {
-      "label": "文件",
-      "summary": "文件更新。"
-    },
-    "tests": {
-      "label": "測試",
-      "summary": "針對此變更的測試覆蓋。"
-    },
-    "config": {
-      "label": "設定",
-      "summary": "設定變更。"
-    },
-    "deps": {
-      "label": "相依套件",
-      "summary": "相依套件版本變更。"
-    },
-    "generated": {
-      "label": "產生檔案",
-      "summary": "產生或建置產物的變更。"
-    }
+    "code": { "label": "程式碼", "summary": "原始碼變更。" },
+    "other": { "label": "其他", "summary": "不屬於現有分類的其他變更。" },
+    "docs": { "label": "文件", "summary": "文件更新。" },
+    "tests": { "label": "測試", "summary": "針對此變更的測試覆蓋。" },
+    "config": { "label": "設定", "summary": "設定變更。" },
+    "deps": { "label": "相依套件", "summary": "相依套件版本變更。" },
+    "generated": { "label": "產生檔案", "summary": "產生或建置產物的變更。" }
   },
   "errors": {
     "tokenRequired": "寫入此 pull request 需要 GitHub token。",

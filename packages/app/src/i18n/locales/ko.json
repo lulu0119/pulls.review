@@ -413,34 +413,13 @@
   },
   "rules": {
     "allFiles": "모든 파일",
-    "code": {
-      "label": "코드",
-      "summary": "소스 변경."
-    },
-    "other": {
-      "label": "기타",
-      "summary": "기존 분류에 맞지 않는 기타 변경."
-    },
-    "docs": {
-      "label": "문서",
-      "summary": "문서 업데이트."
-    },
-    "tests": {
-      "label": "테스트",
-      "summary": "이 변경에 대한 테스트."
-    },
-    "config": {
-      "label": "설정",
-      "summary": "설정 변경."
-    },
-    "deps": {
-      "label": "의존성",
-      "summary": "의존성 버전 변경."
-    },
-    "generated": {
-      "label": "생성 파일",
-      "summary": "생성물 또는 빌드 산출물 변경."
-    }
+    "code": { "label": "코드", "summary": "소스 변경." },
+    "other": { "label": "기타", "summary": "기존 분류에 맞지 않는 기타 변경." },
+    "docs": { "label": "문서", "summary": "문서 업데이트." },
+    "tests": { "label": "테스트", "summary": "이 변경에 대한 테스트." },
+    "config": { "label": "설정", "summary": "설정 변경." },
+    "deps": { "label": "의존성", "summary": "의존성 버전 변경." },
+    "generated": { "label": "생성 파일", "summary": "생성물 또는 빌드 산출물 변경." }
   },
   "errors": {
     "tokenRequired": "이 pull request에 쓰려면 GitHub 토큰이 필요합니다.",

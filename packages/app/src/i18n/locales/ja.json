@@ -413,34 +413,13 @@
   },
   "rules": {
     "allFiles": "すべてのファイル",
-    "code": {
-      "label": "コード",
-      "summary": "ソースコードの変更。"
-    },
-    "other": {
-      "label": "その他",
-      "summary": "既存の分類に当てはまらないその他の変更。"
-    },
-    "docs": {
-      "label": "ドキュメント",
-      "summary": "ドキュメントの更新。"
-    },
-    "tests": {
-      "label": "テスト",
-      "summary": "この変更に対するテスト。"
-    },
-    "config": {
-      "label": "設定",
-      "summary": "設定の変更。"
-    },
-    "deps": {
-      "label": "依存関係",
-      "summary": "依存関係のバージョン変更。"
-    },
-    "generated": {
-      "label": "生成物",
-      "summary": "生成物やビルド成果物の変更。"
-    }
+    "code": { "label": "コード", "summary": "ソースコードの変更。" },
+    "other": { "label": "その他", "summary": "既存の分類に当てはまらないその他の変更。" },
+    "docs": { "label": "ドキュメント", "summary": "ドキュメントの更新。" },
+    "tests": { "label": "テスト", "summary": "この変更に対するテスト。" },
+    "config": { "label": "設定", "summary": "設定の変更。" },
+    "deps": { "label": "依存関係", "summary": "依存関係のバージョン変更。" },
+    "generated": { "label": "生成物", "summary": "生成物やビルド成果物の変更。" }
   },
   "errors": {
     "tokenRequired": "この pull request に書き込むには GitHub トークンが必要です。",

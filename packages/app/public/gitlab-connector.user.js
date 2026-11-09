@@ -4,8 +4,6 @@
 // @version      1.0.0
 // @description  Read configured GitLab instances from your browser, including private networks.
 // @match        https://lulu0119.github.io/pulls.review/*
-// @match        http://localhost:5173/*
-// @match        http://127.0.0.1:5173/*
 // @grant        GM_xmlhttpRequest
 // @connect      *
 // @run-at       document-end

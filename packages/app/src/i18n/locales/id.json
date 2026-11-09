@@ -413,34 +413,13 @@
   },
   "rules": {
     "allFiles": "Semua berkas",
-    "code": {
-      "label": "Kode",
-      "summary": "Perubahan kode sumber."
-    },
-    "other": {
-      "label": "Lainnya",
-      "summary": "Perubahan lain yang tidak cocok dengan kategori yang ada."
-    },
-    "docs": {
-      "label": "Dokumentasi",
-      "summary": "Pembaruan dokumentasi."
-    },
-    "tests": {
-      "label": "Pengujian",
-      "summary": "Cakupan pengujian untuk perubahan ini."
-    },
-    "config": {
-      "label": "Konfigurasi",
-      "summary": "Perubahan konfigurasi."
-    },
-    "deps": {
-      "label": "Dependensi",
-      "summary": "Perubahan versi dependensi."
-    },
-    "generated": {
-      "label": "Hasil generate",
-      "summary": "Perubahan berkas hasil generate atau build."
-    }
+    "code": { "label": "Kode", "summary": "Perubahan kode sumber." },
+    "other": { "label": "Lainnya", "summary": "Perubahan lain yang tidak cocok dengan kategori yang ada." },
+    "docs": { "label": "Dokumentasi", "summary": "Pembaruan dokumentasi." },
+    "tests": { "label": "Pengujian", "summary": "Cakupan pengujian untuk perubahan ini." },
+    "config": { "label": "Konfigurasi", "summary": "Perubahan konfigurasi." },
+    "deps": { "label": "Dependensi", "summary": "Perubahan versi dependensi." },
+    "generated": { "label": "Hasil generate", "summary": "Perubahan berkas hasil generate atau build." }
   },
   "errors": {
     "tokenRequired": "Token GitHub diperlukan untuk menulis ke pull request ini.",

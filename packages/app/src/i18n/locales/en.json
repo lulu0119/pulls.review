@@ -413,26 +413,14 @@
   },
   "rules": {
     "allFiles": "All files",
-    "code": {
-      "label": "Code",
-      "summary": "Source changes."
-    },
+    "code": { "label": "Code", "summary": "Source changes." },
     "other": {
       "label": "Other",
       "summary": "Other changes that don't fit an existing category."
     },
-    "docs": {
-      "label": "Docs",
-      "summary": "Documentation updates."
-    },
-    "tests": {
-      "label": "Tests",
-      "summary": "Test coverage for the change."
-    },
-    "config": {
-      "label": "Config",
-      "summary": "Configuration changes."
-    },
+    "docs": { "label": "Docs", "summary": "Documentation updates." },
+    "tests": { "label": "Tests", "summary": "Test coverage for the change." },
+    "config": { "label": "Config", "summary": "Configuration changes." },
     "deps": {
       "label": "Dependencies",
       "summary": "Dependency version changes."

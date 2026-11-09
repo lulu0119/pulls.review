@@ -1,5 +1,5 @@
 import type { DiffGroup, FileChange } from '@pulls.review/core/types'
-import { flushPromises, mount } from '@vue/test-utils'
+import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import nestedGroups from '../../../test/fixtures/synthetic/nested-groups.json'
 import { i18n } from '../../i18n'
@@ -42,27 +42,5 @@ describe('diffGroupSidebar', () => {
     expect(first.text()).toBe('Description')
     await first.trigger('click')
     expect(wrapper.emitted('selectDescription')).toHaveLength(1)
-  })
-})
-
-describe('diffGroupSidebar explanations', () => {
-  it('shows AI summaries for both parent groups and children in the sidebar', async () => {
-    const groups = resolveGroups([{
-      key: 'api',
-      label: 'API',
-      category: 'api',
-      filePaths: [],
-      summary: 'Keeps authentication consistent across requests.',
-      children: [{ key: 'tokens', label: 'Tokens', category: 'security', filePaths: [], summary: 'Refreshes expired tokens before retrying.' }],
-    }], [])
-    const wrapper = mount(DiffGroupSidebar, { props: { groups, groupsVisable: [], reviewed: new Set<string>() }, global: { plugins: [i18n] } })
-    try {
-      await flushPromises()
-      expect(wrapper.get('nav').text()).toContain(groups[0]!.summary)
-      expect(wrapper.get('nav').text()).toContain(groups[0]!.children[0]!.summary)
-    }
-    finally {
-      wrapper.unmount()
-    }
   })
 })

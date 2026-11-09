@@ -2,7 +2,6 @@
 import type { ResolvedGroupWithChildren } from './group-utils'
 import ActionIconButton from '@antfu/design/components/Action/ActionIconButton.vue'
 import DisplayDonut from '@antfu/design/components/Display/DisplayDonut.vue'
-import { Markdown } from '@comark/vue'
 import { computed, ref } from 'vue'
 import CriticalMark from './CriticalMark.vue'
 import DiffStats from './DiffStats.vue'
@@ -58,52 +57,47 @@ const rows = computed(() => props.groups.flatMap(group => [
     <div
       v-for="{ group, depth } in rows"
       :key="group.key"
-      class="group flex flex-col rounded pr-1 transition-colors"
+      class="group flex items-center rounded pr-1 transition-colors"
       :class="[
         groupsVisable.includes(group.key) ? 'bg-active' : 'hover:bg-hover',
         depth ? 'pl-4 border-base rounded-l-none' : 'mt-1',
       ]"
     >
-      <div class="flex items-center">
-        <button
-          type="button"
-          class="min-w-0 flex flex-1 flex-col items-start px-2 py-1 text-left color-base"
-          :class="groupsVisable.includes(group.key) ? 'op-100' : 'op-fade hover:op-100'"
-          @click="$emit('select', group.key)"
-        >
-          <span class="w-full flex items-center gap-1.5">
-            <GroupCategoryIcon
-              :category="group.category"
-              class="text-sm group-hover:saturate-100"
-              :class="groupsVisable.includes(group.key) ? '' : 'saturate-0'"
-            />
-            <span class="truncate" :title="group.label">{{ group.label }}</span>
-            <CriticalMark v-if="groupIsCritical(group)" class="text-sm" />
-          </span>
-          <span class="ml-6 flex items-center gap-1 text-xs">
-            <DiffStats :additions="countGroupStats(group).added" :deletions="countGroupStats(group).deleted" />
-            <span class="op-mute">・{{ $t('common.files', { n: countGroupFiles(group) }, countGroupFiles(group)) }}</span>
-          </span>
-        </button>
-        <DisplayDonut
-          v-if="groupProgress(group, reviewed)"
-          :value="groupProgress(group, reviewed)"
-          :size="16"
-          :thickness="2"
-          class="shrink-0"
-        />
-        <ActionIconButton
-          v-if="group.children.length"
-          :icon="collapsed.has(group.key) ? 'i-ph:caret-right' : 'i-ph:caret-down'"
-          :aria-expanded="!collapsed.has(group.key)"
-          :label="$t(collapsed.has(group.key) ? 'group.showSubgroups' : 'group.hideSubgroups')"
-          class="shrink-0 text-xs"
-          @click="toggleCollapsed(group.key)"
-        />
-      </div>
-      <Suspense v-if="group.summary">
-        <Markdown :value="group.summary" class="break-words px-2 pb-2 text-xs color-muted" />
-      </Suspense>
+      <button
+        type="button"
+        class="min-w-0 flex flex-1 flex-col items-start px-2 py-1 text-left color-base"
+        :class="groupsVisable.includes(group.key) ? 'op-100' : 'op-fade hover:op-100'"
+        @click="$emit('select', group.key)"
+      >
+        <span class="w-full flex items-center gap-1.5">
+          <GroupCategoryIcon
+            :category="group.category"
+            class="text-sm group-hover:saturate-100"
+            :class="groupsVisable.includes(group.key) ? '' : 'saturate-0'"
+          />
+          <span class="truncate" :title="group.label">{{ group.label }}</span>
+          <CriticalMark v-if="groupIsCritical(group)" class="text-sm" />
+        </span>
+        <span class="ml-6 flex items-center gap-1 text-xs">
+          <DiffStats :additions="countGroupStats(group).added" :deletions="countGroupStats(group).deleted" />
+          <span class="op-mute">・{{ $t('common.files', { n: countGroupFiles(group) }, countGroupFiles(group)) }}</span>
+        </span>
+      </button>
+      <DisplayDonut
+        v-if="groupProgress(group, reviewed)"
+        :value="groupProgress(group, reviewed)"
+        :size="16"
+        :thickness="2"
+        class="shrink-0"
+      />
+      <ActionIconButton
+        v-if="group.children.length"
+        :icon="collapsed.has(group.key) ? 'i-ph:caret-right' : 'i-ph:caret-down'"
+        :aria-expanded="!collapsed.has(group.key)"
+        :label="$t(collapsed.has(group.key) ? 'group.showSubgroups' : 'group.hideSubgroups')"
+        class="shrink-0 text-xs"
+        @click="toggleCollapsed(group.key)"
+      />
     </div>
   </nav>
 </template>

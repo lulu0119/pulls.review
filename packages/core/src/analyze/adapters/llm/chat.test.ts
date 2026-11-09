@@ -34,7 +34,7 @@ function file(path: string): DiffsPayload['files'][number] {
 const diff: DiffsPayload = { ref: { kind: 'github-pr', owner: 'o', repo: 'r', number: '1' }, title: 'My PR', files: [file('a.ts'), file('b.ts')] }
 
 function oneGroup(...filePaths: string[]): Analysis {
-  return { overallSummary: 'Adds a feature.', groups: [{ key: 'feature', label: 'Feature', summary: 'Explains the change.', category: 'core', filePaths }] }
+  return { overallSummary: 'Adds a feature.', groups: [{ key: 'feature', label: 'Feature', category: 'core', filePaths }] }
 }
 
 function toolUse(name: string, args: Parameters<typeof fauxToolCall>[1]) {
@@ -81,7 +81,7 @@ describe('createChatSession', () => {
     const onGroupingUpdate = vi.fn<(result: GroupedResult) => void>()
     const agent = createChatSession({ diff, resolved, locale: 'en', messages: await analysisTranscript(), onGroupingUpdate })
     faux.setResponses([
-      toolUse('update_grouping', { overallSummary: 'Split.', groups: [{ key: 'a', label: 'A', summary: 'Explains the change.', category: 'core', filePaths: ['a.ts'] }, { key: 'b', label: 'B', summary: 'Explains the change.', category: 'core', filePaths: ['b.ts'] }] }),
+      toolUse('update_grouping', { overallSummary: 'Split.', groups: [{ key: 'a', label: 'A', category: 'core', filePaths: ['a.ts'] }, { key: 'b', label: 'B', category: 'core', filePaths: ['b.ts'] }] }),
       fauxAssistantMessage('Split into two groups.'),
     ])
 

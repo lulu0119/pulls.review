@@ -17,7 +17,7 @@ Hosted at **https://lulu0119.github.io/pulls.review/**. Paste a GitLab merge req
 URL into the home page, including subgroup paths such as
 `https://gitlab.company.test/team/subgroup/repo/-/merge_requests/42`.
 
-1. Open **Configure GitLab** and save the instance root URL (include a relative URL
+1. Open **Settings → GitLab** and save the instance root URL (include a relative URL
    root if your installation uses one; exclude dashboard and project paths).
 2. For private projects, enter a personal or project access token with `read_api`.
    Each instance has its own token, stored only in this browser.
@@ -43,9 +43,8 @@ are not implemented; use the original MR page for those actions.
 MR commits are loaded oldest first and included in the AI context. The commit
 picker opens each commit against its first parent; **All changes** returns to
 the whole MR. Older cached MRs automatically refresh their commit metadata while
-preserving their AI results. Group explanations appear in the left sidebar when
-provided by the model; explanations remain optional, as in upstream. Re-run AI
-analysis to include commit context in an older result.
+preserving their AI results. Re-run AI analysis to include commit context in an
+older result.
 
 The Pages workflow builds on pushes to `main` and uses hash routes so deep links
 and refresh work without a server rewrite. Other deployment targets retain

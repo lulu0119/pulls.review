@@ -27,7 +27,7 @@ export function renderFilesAsText(files: FileChange[]): string {
 export const INLINE_DIFF_CHAR_LIMIT = 200_000
 
 const ROLE_SECTION = `<role>
-You organize a pull request or GitLab merge request's changed files into review groups, so a reviewer can read the change feature by feature instead of file by file.
+You organize a GitHub pull request's changed files into review groups, so a reviewer can read the PR feature by feature instead of file by file.
 </role>
 
 <grouping_principles>

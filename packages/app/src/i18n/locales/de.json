@@ -413,34 +413,13 @@
   },
   "rules": {
     "allFiles": "Alle Dateien",
-    "code": {
-      "label": "Code",
-      "summary": "Änderungen am Quellcode."
-    },
-    "other": {
-      "label": "Sonstiges",
-      "summary": "Andere Änderungen, die in keine bestehende Kategorie passen."
-    },
-    "docs": {
-      "label": "Doku",
-      "summary": "Aktualisierungen der Dokumentation."
-    },
-    "tests": {
-      "label": "Tests",
-      "summary": "Testabdeckung für die Änderung."
-    },
-    "config": {
-      "label": "Konfiguration",
-      "summary": "Konfigurationsänderungen."
-    },
-    "deps": {
-      "label": "Abhängigkeiten",
-      "summary": "Versionsänderungen von Abhängigkeiten."
-    },
-    "generated": {
-      "label": "Generiert",
-      "summary": "Änderungen an generierten oder Build-Dateien."
-    }
+    "code": { "label": "Code", "summary": "Änderungen am Quellcode." },
+    "other": { "label": "Sonstiges", "summary": "Andere Änderungen, die in keine bestehende Kategorie passen." },
+    "docs": { "label": "Doku", "summary": "Aktualisierungen der Dokumentation." },
+    "tests": { "label": "Tests", "summary": "Testabdeckung für die Änderung." },
+    "config": { "label": "Konfiguration", "summary": "Konfigurationsänderungen." },
+    "deps": { "label": "Abhängigkeiten", "summary": "Versionsänderungen von Abhängigkeiten." },
+    "generated": { "label": "Generiert", "summary": "Änderungen an generierten oder Build-Dateien." }
   },
   "errors": {
     "tokenRequired": "Zum Schreiben in diesen Pull Request ist ein GitHub-Token erforderlich.",

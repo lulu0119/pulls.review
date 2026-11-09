@@ -29,7 +29,7 @@ describe('findCoverageIssues', () => {
   const diff = diffWithFiles([file({ path: 'a.ts' }), file({ path: 'b.ts' }), file({ path: 'c.ts' })])
 
   it('finds missing paths never assigned to a group', () => {
-    const analysis: Analysis = { overallSummary: '', groups: [{ key: 'g', label: 'G', summary: 'Explains the change.', category: 'core', filePaths: ['a.ts'] }] }
+    const analysis: Analysis = { overallSummary: '', groups: [{ key: 'g', label: 'G', category: 'core', filePaths: ['a.ts'] }] }
     expect(findCoverageIssues(diff, analysis)).toEqual({ missing: ['b.ts', 'c.ts'], duplicated: [], unknown: [] })
   })
 
@@ -37,20 +37,20 @@ describe('findCoverageIssues', () => {
     const analysis: Analysis = {
       overallSummary: '',
       groups: [
-        { key: 'g1', label: 'G1', summary: 'Explains the change.', category: 'core', filePaths: ['a.ts'] },
-        { key: 'g2', label: 'G2', summary: 'Explains the change.', category: 'core', filePaths: [], children: [{ key: 'c1', label: 'C1', summary: 'Explains the change.', category: 'core', filePaths: ['a.ts', 'b.ts', 'c.ts'] }] },
+        { key: 'g1', label: 'G1', category: 'core', filePaths: ['a.ts'] },
+        { key: 'g2', label: 'G2', category: 'core', filePaths: [], children: [{ key: 'c1', label: 'C1', category: 'core', filePaths: ['a.ts', 'b.ts', 'c.ts'] }] },
       ],
     }
     expect(findCoverageIssues(diff, analysis)).toEqual({ missing: [], duplicated: ['a.ts'], unknown: [] })
   })
 
   it('finds unknown paths not present in the diff', () => {
-    const analysis: Analysis = { overallSummary: '', groups: [{ key: 'g', label: 'G', summary: 'Explains the change.', category: 'core', filePaths: ['a.ts', 'b.ts', 'c.ts', 'z.ts'] }] }
+    const analysis: Analysis = { overallSummary: '', groups: [{ key: 'g', label: 'G', category: 'core', filePaths: ['a.ts', 'b.ts', 'c.ts', 'z.ts'] }] }
     expect(findCoverageIssues(diff, analysis)).toEqual({ missing: [], duplicated: [], unknown: ['z.ts'] })
   })
 
   it('reports nothing when every path is covered exactly once', () => {
-    const analysis: Analysis = { overallSummary: '', groups: [{ key: 'g', label: 'G', summary: 'Explains the change.', category: 'core', filePaths: ['a.ts', 'b.ts', 'c.ts'] }] }
+    const analysis: Analysis = { overallSummary: '', groups: [{ key: 'g', label: 'G', category: 'core', filePaths: ['a.ts', 'b.ts', 'c.ts'] }] }
     expect(findCoverageIssues(diff, analysis)).toEqual({ missing: [], duplicated: [], unknown: [] })
   })
 })
@@ -116,7 +116,7 @@ describe('createSubmitGroupingTool', () => {
     const diff = diffWithFiles([file({ path: 'a.ts' })])
     const tool = createSubmitGroupingTool(diff, createLedger())
     await expect(tool.execute('id', { overallSummary: 's', groups: [{ key: 'g', label: 'G', filePaths: ['a.ts'] }] })).rejects.toThrow('category')
-    await expect(tool.execute('id', { overallSummary: 's', groups: [{ key: 'g', label: 'G', summary: 'Explains the change.', category: 'core', filePaths: [], children: [{ key: 'c', label: 'C', filePaths: ['a.ts'] }] }] })).rejects.toThrow('category')
+    await expect(tool.execute('id', { overallSummary: 's', groups: [{ key: 'g', label: 'G', category: 'core', filePaths: [], children: [{ key: 'c', label: 'C', filePaths: ['a.ts'] }] }] })).rejects.toThrow('category')
 
     expect(toJsonSchema(AnalysisSchema)).toMatchObject({
       properties: {
@@ -157,7 +157,7 @@ describe('createSubmitGroupingTool', () => {
     const diff = diffWithFiles([file({ path: 'a.ts' }), file({ path: 'b.ts' })])
     const ledger = createLedger()
     const tool = createSubmitGroupingTool(diff, ledger)
-    const incomplete = { overallSummary: 's', groups: [{ key: 'g', label: 'G', summary: 'Explains the change.', category: 'core', filePaths: ['a.ts'] }] }
+    const incomplete = { overallSummary: 's', groups: [{ key: 'g', label: 'G', category: 'core', filePaths: ['a.ts'] }] }
 
     await expect(tool.execute('id', incomplete)).rejects.toThrow('Missing paths: b.ts')
     expect(ledger.result).toBeUndefined()
@@ -171,7 +171,7 @@ describe('createSubmitGroupingTool', () => {
     const diff = diffWithFiles([file({ path: 'a.ts' })])
     const ledger = createLedger()
     const tool = createSubmitGroupingTool(diff, ledger)
-    const analysis = { overallSummary: 's', groups: [{ key: 'g', label: 'G', summary: 'Explains the change.', category: 'core', filePaths: ['a.ts'] }] }
+    const analysis = { overallSummary: 's', groups: [{ key: 'g', label: 'G', category: 'core', filePaths: ['a.ts'] }] }
     const result = await tool.execute('id', analysis)
     expect(result.terminate).toBe(true)
     expect(result.content[0]).toEqual({ type: 'text', text: 'Grouping accepted.' })
@@ -192,7 +192,7 @@ describe('createUpdateGroupingTool', () => {
   it('throws on every attempt while coverage issues remain', async () => {
     const onUpdate = vi.fn()
     const tool = createUpdateGroupingTool(diff, onUpdate)
-    const incomplete = { overallSummary: 's', groups: [{ key: 'g', label: 'G', summary: 'Explains the change.', category: 'core', filePaths: ['a.ts', 'z.ts'] }] }
+    const incomplete = { overallSummary: 's', groups: [{ key: 'g', label: 'G', category: 'core', filePaths: ['a.ts', 'z.ts'] }] }
 
     for (let i = 0; i < 2; i++)
       await expect(tool.execute('id', incomplete)).rejects.toThrow('Missing paths: b.ts\nUnknown paths: z.ts\nFix these and call update_grouping again.')
@@ -201,7 +201,7 @@ describe('createUpdateGroupingTool', () => {
 
   it('passes a covered grouping to onUpdate without terminating', async () => {
     const onUpdate = vi.fn()
-    const analysis = { overallSummary: 's', groups: [{ key: 'a', label: 'A', summary: 'Explains the change.', category: 'core', filePaths: ['a.ts'] }, { key: 'b', label: 'B', summary: 'Explains the change.', category: 'core', filePaths: ['b.ts'] }] }
+    const analysis = { overallSummary: 's', groups: [{ key: 'a', label: 'A', category: 'core', filePaths: ['a.ts'] }, { key: 'b', label: 'B', category: 'core', filePaths: ['b.ts'] }] }
     const result = await createUpdateGroupingTool(diff, onUpdate).execute('id', analysis)
     expect(onUpdate).toHaveBeenCalledWith(analysis)
     expect(result.content[0]).toEqual({ type: 'text', text: 'Grouping updated: 2 groups.' })
@@ -214,17 +214,17 @@ describe('prepareGroupingArguments', () => {
     const args = {
       overallSummary: 'x',
       groups: JSON.stringify([
-        { key: 'a', label: 'A', summary: 'Explains the change.', category: 'core', filePaths: '["a.ts"]', children: JSON.stringify([{ key: 'b', label: 'B', summary: 'Explains the change.', category: 'core', filePaths: '["b.ts"]' }]) },
+        { key: 'a', label: 'A', category: 'core', filePaths: '["a.ts"]', children: JSON.stringify([{ key: 'b', label: 'B', category: 'core', filePaths: '["b.ts"]' }]) },
       ]),
     }
     expect(prepareGroupingArguments(args)).toEqual({
       overallSummary: 'x',
-      groups: [{ key: 'a', label: 'A', summary: 'Explains the change.', category: 'core', filePaths: ['a.ts'], children: [{ key: 'b', label: 'B', summary: 'Explains the change.', category: 'core', filePaths: ['b.ts'] }] }],
+      groups: [{ key: 'a', label: 'A', category: 'core', filePaths: ['a.ts'], children: [{ key: 'b', label: 'B', category: 'core', filePaths: ['b.ts'] }] }],
     })
   })
 
   it('leaves well-formed and unparseable arguments untouched', () => {
-    const args = { overallSummary: 'x', groups: [{ key: 'a', label: 'A', summary: 'Explains the change.', category: 'core', filePaths: ['a.ts'] }] }
+    const args = { overallSummary: 'x', groups: [{ key: 'a', label: 'A', category: 'core', filePaths: ['a.ts'] }] }
     expect(prepareGroupingArguments(args)).toEqual(args)
     expect(prepareGroupingArguments({ groups: 'not json' })).toEqual({ groups: 'not json' })
   })

@@ -413,34 +413,13 @@
   },
   "rules": {
     "allFiles": "所有文件",
-    "code": {
-      "label": "代码",
-      "summary": "源码变更。"
-    },
-    "other": {
-      "label": "其他",
-      "summary": "不属于现有分类的其他变更。"
-    },
-    "docs": {
-      "label": "文档",
-      "summary": "文档更新。"
-    },
-    "tests": {
-      "label": "测试",
-      "summary": "针对此变更的测试覆盖。"
-    },
-    "config": {
-      "label": "配置",
-      "summary": "配置变更。"
-    },
-    "deps": {
-      "label": "依赖",
-      "summary": "依赖版本变更。"
-    },
-    "generated": {
-      "label": "生成文件",
-      "summary": "生成或构建产物的变更。"
-    }
+    "code": { "label": "代码", "summary": "源码变更。" },
+    "other": { "label": "其他", "summary": "不属于现有分类的其他变更。" },
+    "docs": { "label": "文档", "summary": "文档更新。" },
+    "tests": { "label": "测试", "summary": "针对此变更的测试覆盖。" },
+    "config": { "label": "配置", "summary": "配置变更。" },
+    "deps": { "label": "依赖", "summary": "依赖版本变更。" },
+    "generated": { "label": "生成文件", "summary": "生成或构建产物的变更。" }
   },
   "errors": {
     "tokenRequired": "写入此 pull request 需要 GitHub token。",

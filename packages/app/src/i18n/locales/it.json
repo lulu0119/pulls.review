@@ -413,34 +413,13 @@
   },
   "rules": {
     "allFiles": "Tutti i file",
-    "code": {
-      "label": "Codice",
-      "summary": "Modifiche al codice sorgente."
-    },
-    "other": {
-      "label": "Altro",
-      "summary": "Altre modifiche che non rientrano in una categoria esistente."
-    },
-    "docs": {
-      "label": "Documentazione",
-      "summary": "Aggiornamenti della documentazione."
-    },
-    "tests": {
-      "label": "Test",
-      "summary": "Copertura dei test per la modifica."
-    },
-    "config": {
-      "label": "Configurazione",
-      "summary": "Modifiche di configurazione."
-    },
-    "deps": {
-      "label": "Dipendenze",
-      "summary": "Modifiche di versione delle dipendenze."
-    },
-    "generated": {
-      "label": "Generati",
-      "summary": "Modifiche a file generati o di build."
-    }
+    "code": { "label": "Codice", "summary": "Modifiche al codice sorgente." },
+    "other": { "label": "Altro", "summary": "Altre modifiche che non rientrano in una categoria esistente." },
+    "docs": { "label": "Documentazione", "summary": "Aggiornamenti della documentazione." },
+    "tests": { "label": "Test", "summary": "Copertura dei test per la modifica." },
+    "config": { "label": "Configurazione", "summary": "Modifiche di configurazione." },
+    "deps": { "label": "Dipendenze", "summary": "Modifiche di versione delle dipendenze." },
+    "generated": { "label": "Generati", "summary": "Modifiche a file generati o di build." }
   },
   "errors": {
     "tokenRequired": "Serve un token GitHub per scrivere in questa pull request.",
